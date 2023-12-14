@@ -1,0 +1,138 @@
+#include <iostream>
+#include <vector>
+#include <algorithm> // Add this line
+#include <cstdlib>
+using namespace std;
+
+void clearScreen()
+{
+    cout << "\033[2J\033[H"; // Escape sequences to clear the screen
+}
+
+class Flight
+{
+private:
+    string flightNo, departure, destination;
+    int capacity;
+    vector<bool> seats; // true if seat is reserved, false if not
+
+public:
+    Flight(string flight, string dep, string des, int cap)
+    {
+        flightNo = flight;
+        departure = dep;
+        destination = des;
+        capacity = cap;
+        seats.resize(capacity, false); // Initialize all seats as unreserved
+    }
+
+    int reservation(int numSeats)
+    {
+        int seatsBooked = 0;
+
+        for (int i = 0; i < capacity; ++i)
+        {
+            if (!seats[i])
+            {
+                seats[i] = true;
+                seatsBooked++;
+
+                if (seatsBooked == numSeats)
+                {
+                    cout << "Seats reserved. Your seat numbers are: ";
+                    for (int j = i - seatsBooked + 1; j <= i; ++j)
+                    {
+                        cout << j + 1 << " ";
+                    }
+                    cout << endl;
+
+                    return count(seats.begin(), seats.end(), false); // Return remaining seats count
+                }
+            }
+        }
+
+        cout << "Sorry! Not enough seats available." << endl;
+        return -1; // No available seats or not enough seats
+    }
+
+    friend class ReservationSystem;
+};
+
+class ReservationSystem
+{
+public:
+    vector<Flight> ve;
+
+    void add(string flight, string dep, string des, int cap)
+    {
+        Flight newflight(flight, dep, des, cap);
+        ve.push_back(newflight);
+    }
+
+    void reserveSeat()
+    {
+        cout << "<<<<< Available Flights >>>>>" << endl
+             << endl;
+        for (int i = 0; i < ve.size(); i++)
+        {
+            cout << "Flight: " << ve[i].flightNo << endl;
+            cout << "Departure: " << ve[i].departure << endl;
+            cout << "Destination: " << ve[i].destination << endl;
+            cout << "Total Seats: " << ve[i].capacity << endl
+                 << endl;
+        }
+
+        string fn;
+        cout << "Enter Flight No: ";
+        cin >> fn;
+
+        int numSeats;
+        cout << "Enter number of seats to book: ";
+        cin >> numSeats;
+
+        for (int i = 0; i < ve.size(); i++)
+        {
+            if (fn == ve[i].flightNo)
+            {
+                int remainingSeats = ve[i].reservation(numSeats);
+                if (remainingSeats != -1)
+                {
+                    cout << "Remaining Seats: " << remainingSeats << endl
+                         << endl;
+                }
+                else
+                {
+                    cout << "Reservation failed." << endl
+                         << endl;
+                }
+            }
+        }
+    }
+};
+
+int main()
+{
+    ReservationSystem rs;
+    rs.add("F101", "PUNE", "NEW YORK", 100);
+    rs.add("F202", "PUNE", "SINGAPORE", 150);
+    rs.add("F303", "PUNE", "DUBAI", 100);
+    cout << "<<<<< AMEY Airline >>>>>" << endl
+         << endl;
+    while (true)
+    {
+        int choice;
+        cout << "Enter 1 for reserve seat " << endl;
+        cout << "Enter 0 for exit" << endl;
+        cout << "Enter choice: ";
+        cin >> choice;
+        if (choice == 1)
+        {
+            rs.reserveSeat();
+        }
+        else if (choice == 0)
+        {
+            exit(0);
+        }
+    }
+    return 0;
+}
